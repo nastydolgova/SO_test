@@ -1,37 +1,57 @@
 <template>
-  <div style="padding-left: 10px">
-    <input type="checkbox" :id="item.id" :name="item.name" :checked="checkChecked()">
-         {{ item.name }}
-    <template v-if="item.Children != null">
-      <EntityView v-for="value in item.Children" :key="value.id" :item="value"/>
-       <!-- v-on="$listeners" -->
+  <div style="padding-left: 20px">
+    <v-checkbox
+      :id="`${item.id}`"
+      :name="item.name"
+      :input-value="item.checked"
+      :indeterminate="checkChecked()"
+      :label="item.name"
+      @change="handleChange(item)"
+    />
+    <template v-if="item.children != null">
+      <EntityView
+        v-for="value in item.children"
+        :key="value.id"
+        :item="value"
+        v-on="$listeners"
+      />
     </template>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch, Emit } from "vue-property-decorator";
 
 @Component
 export default class EntityView extends Vue {
   @Prop()
   item: any;
 
-  checkChecked(){
-    if(this.item.Children){
-      this.item.Children.forEach((child: any) => {
-          if (child.checked != this.item.checked)
-          return false
-          // добавить indeterminate
-          // добавить условие что если в массиве у всех дочерних равны между собой но не равны родителю - родитель меняется
-          // добавить модель
-          // добавить оформление
-        }
-      )
+  indeterminate = false
+
+  @Watch('item')
+  checkChecked() {
+    if (this.item.children) {
+      let results: any = [];
+      this.item.children.forEach((child: any) => {
+        results.push(child.checked);
+      });
+      if ( results.every((res: boolean) => res == true) || results.every((res: boolean) => res == false) ) {
+        return false
+      } else {
+        return true
+      }
     } else {
-      return this.item.checked
+      return false
     }
   }
+
+		@Emit("handleChange")
+		handleChange(item: any) {
+      item.checked = !item.checked;
+      return item
+		} 
+
 }
 </script>
 <style scoped lang="scss"></style>

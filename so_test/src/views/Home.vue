@@ -1,13 +1,42 @@
 <template>
-  <div class="home">
-    <EntityView v-for="item in rules" :key="item.id" :item="item" />
-     <!-- @changeChecked="changeChecked" -->
-  </div>
+  <v-container>
+    <v-row  class="text-h3">
+      <v-col>
+        Vuetify
+      </v-col>
+      <v-col >
+        Самописный
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-treeview
+          v-model="selection"
+          :items="rules" 
+          selectable 
+          return-object 
+          open-all 
+          selected-color="red" 
+        />
+      </v-col>
+      <v-col>
+        <EntityView 
+          v-for="item in rules" 
+          :key="item.id" 
+          :item="item" 
+          @handleChange="handleChange"
+        />
+
+      <!-- @changeChecked="changeChecked" -->
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
 import EntityView from "../components/EntityView.vue";
+import { Rule } from "../models/Rule"
 
 @Component({
   components: {
@@ -15,32 +44,36 @@ import EntityView from "../components/EntityView.vue";
   },
 })
 export default class Home extends Vue {
-  rules: any[] = [
+
+  selection: any[] = []
+  arr: any = []
+
+  rules: Rule[] = [
     {
       id: 1,
       parentId: null,
       name: "Редактирование профиля",
-      checked: true,
-      Children: [
+      checked: false,
+      children: [
         {
           id: 11,
           parentId: 1,
           name: "Изменение профиля",
-          checked: true,
-          Children: [
+          checked: false,
+          children: [
             {
-              id: 121,
+              id: 111,
               parentId: 11,
               name: "Удаление",
               checked: false,
-              Children: null,
+              children: null,
             },
             {
-              id: 122,
+              id: 112,
               parentId: 11,
               name: "Добавление",
               checked: true,
-              Children: null,
+              children: null,
             },
           ],
         },
@@ -49,7 +82,7 @@ export default class Home extends Vue {
           parentId: 1,
           name: "Редактирование имени",
           checked: false,
-          Children: null,
+          children: null,
         },
       ],
     },
@@ -57,21 +90,21 @@ export default class Home extends Vue {
       id: 2,
       parentId: null,
       name: "Управление сущностью",
-      checked: true,
-      Children: [
+      checked: false,
+      children: [
         {
           id: 21,
           parentId: 2,
           name: "Удаление сущности",
-          checked: true,
-          Children: null,
+          checked: false,
+          children: null,
         },
         {
           id: 22,
           parentId: 2,
           name: "Добавление сущности",
           checked: true,
-          Children: null,
+          children: null,
         },
       ],
     },
@@ -79,8 +112,56 @@ export default class Home extends Vue {
       id: 3,
       parentId: null,
       name: "Режим админа",
-      checked: true,
-    },
+      checked: false,
+      children: []
+    }
   ];
+
+  mounted(){
+    this.pushItems(this.rules)
+  }
+
+  @Watch('rules')
+  pushItems(x: Rule[]){
+    x.forEach( (item: Rule) => {
+      if (item.checked == true) {
+        this.arr.push( item )
+      }
+      if( item.children != null) {
+        this.pushItems(item.children)
+      }
+    })
+    this.selection = this.arr.filter( (item: any) => item.checked == true )
+  }
+
+  handleChange(item: any){
+    if (item.parentId == null){
+      this.rules.find( x => x.id == item.id).checked != this.rules.find( x => x.id == item.id).checked
+    } else {
+      this.rules.forEach((y) => {      
+        if(y.children != null) this.findElem(item, y.children)})
+    }
+  }
+
+  findElem(item: Rule, arr: Rule[]){
+    if (item.parentId == arr[0].parentId){
+      let currentItem = arr.find( (x: any) => x.id == item.id)
+      currentItem.checked != currentItem.checked
+      if (currentItem.children != null){
+        currentItem.children.map( (x: any) => { x.checked = currentItem.checked })
+      }
+    } else {
+      arr.forEach((y: any) => {
+        if (y.children != null) {
+        this.findElem(item, y.children)
+        }
+      })
+    }
+  }
+
 }
+// поиск по parentid - если id равен parentId а все дочерние элементы проходят проверку every то чек у родителя менятеся
+// клик по родителю меняет детей
+// underfined
+
 </script>
