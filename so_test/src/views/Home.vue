@@ -1,10 +1,10 @@
 <template>
   <v-container>
-    <v-row  class="text-h3">
+    <v-row class="text-h3">
       <v-col>
         Vuetify
       </v-col>
-      <v-col >
+      <v-col>
         Самописный
       </v-col>
     </v-row>
@@ -46,7 +46,7 @@ import { Rule } from "../models/Rule"
 export default class Home extends Vue {
 
   selection: any[] = []
-  arr: any = []
+  arr: Rule[] = []
 
   rules: Rule[] = [
     {
@@ -117,12 +117,12 @@ export default class Home extends Vue {
     }
   ];
 
-  mounted(){
+  mounted(): void{
     this.pushItems(this.rules)
   }
 
   @Watch('rules')
-  pushItems(x: Rule[]){
+  pushItems(x: Rule[]): void{
     x.forEach( (item: Rule) => {
       if (item.checked == true) {
         this.arr.push( item )
@@ -134,18 +134,26 @@ export default class Home extends Vue {
     this.selection = this.arr.filter( (item: any) => item.checked == true )
   }
 
-  handleChange(item: any){
+  handleChange(item: Rule): void{
+    let currentItem: any;
     if (item.parentId == null){
-      this.rules.find( x => x.id == item.id).checked != this.rules.find( x => x.id == item.id).checked
+      currentItem =  this.rules.find( x => x.id == item.id)
+      currentItem.checked != currentItem.checked
+      if(item.children != null){
+        item.children.forEach((child: Rule) => {
+          child.checked = currentItem.checked
+        })
+      }
     } else {
       this.rules.forEach((y) => {      
         if(y.children != null) this.findElem(item, y.children)})
     }
   }
 
-  findElem(item: Rule, arr: Rule[]){
+  findElem(item: Rule, arr: Rule[]): void {
+    let currentItem: any;
     if (item.parentId == arr[0].parentId){
-      let currentItem = arr.find( (x: any) => x.id == item.id)
+      currentItem = arr.find( (x: any) => x.id == item.id)
       currentItem.checked != currentItem.checked
       if (currentItem.children != null){
         currentItem.children.map( (x: any) => { x.checked = currentItem.checked })
@@ -161,7 +169,5 @@ export default class Home extends Vue {
 
 }
 // поиск по parentid - если id равен parentId а все дочерние элементы проходят проверку every то чек у родителя менятеся
-// клик по родителю меняет детей
-// underfined
-
+// более глубокие дочерние элементы тоже отмечать
 </script>

@@ -21,6 +21,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch, Emit } from "vue-property-decorator";
+import { Rule } from "../models/Rule"
 
 @Component
 export default class EntityView extends Vue {
@@ -30,10 +31,10 @@ export default class EntityView extends Vue {
   indeterminate = false
 
   @Watch('item')
-  checkChecked() {
+  checkChecked():boolean {
     if (this.item.children) {
-      let results: any = [];
-      this.item.children.forEach((child: any) => {
+      let results: any[] = [];
+      this.item.children.forEach((child: Rule) => {
         results.push(child.checked);
       });
       if ( results.every((res: boolean) => res == true) || results.every((res: boolean) => res == false) ) {
@@ -47,7 +48,7 @@ export default class EntityView extends Vue {
   }
 
 		@Emit("handleChange")
-		handleChange(item: any) {
+		handleChange(item: Rule): Rule {
       item.checked = !item.checked;
       return item
 		} 
