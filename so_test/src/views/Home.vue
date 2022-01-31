@@ -122,28 +122,28 @@ export default class Home extends Vue {
   }
 
   @Watch('rules')
-  pushItems(x: Rule[]): void{
-    x.forEach( (item: Rule) => {
+  pushItems(el: Rule[]): void {
+    el.forEach((item: Rule) => {
       if (item.checked == true) {
-        this.arr.push( item )
+        this.arr.push(item)
       }
-      if( item.children != null) {
+      if (item.children != null) {
         this.pushItems(item.children)
       }
     })
-    this.selection = this.arr.filter( (item: any) => item.checked == true )
+    this.selection = this.arr.filter((item: any) => item.checked == true)
   }
 
   handleChange(item: Rule): void{
     let currentItem: any;
-    if (item.parentId == null){
-      currentItem =  this.rules.find( x => x.id == item.id)
+    if (item.parentId == null) {
+      currentItem = this.rules.find(el => el.id == item.id)
       currentItem.checked != currentItem.checked
       this.checkChildren(currentItem)
     } else {
-      this.rules.forEach((y) => {      
-        if(y.children != null) 
-          this.findElem(item, y.children)
+      this.rules.forEach((el) => {      
+        if (el.children != null) 
+          this.findElem(item, el.children)
       })
     }
   }
@@ -151,43 +151,42 @@ export default class Home extends Vue {
   findElem(item: Rule, arr: Rule[]): void {
     let currentItem: any;
     if (item && arr[0] && item.parentId == arr[0].parentId){
-      currentItem = arr.find( (x: any) => x.id == item.id)
+      currentItem = arr.find((el: any) => el.id == item.id)
       currentItem.checked != currentItem.checked
       this.checkChildren(currentItem)
       this.checkParent(item, this.rules)
     } else {
-      arr.forEach((y: any) => {
-        if (y.children != null) {
-        this.findElem(item, y.children)
+      arr.forEach((el: any) => {
+        if (el.children != null) {
+        this.findElem(item, el.children)
         }
       })
     }
   }
 
-  checkChildren(item: Rule){
+  checkChildren(item: Rule): void{
     if(item.children != null){
-      item.children.map( (x: any) => { 
-        x.checked = item.checked
-        if(x.children != null) {
-          this.checkChildren(x)
+      item.children.map((el: any) => { 
+        el.checked = item.checked
+        if(el.children != null) {
+          this.checkChildren(el)
         }
       })
     }
   }
 
-  checkParent(item: Rule, arr: Rule[]){
-    let parentItem = arr.find((x: any) => x.id == item.parentId )
+  checkParent(item: Rule, arr: Rule[]): void{
+    let parentItem = arr.find((el: any) => el.id == item.parentId)
     if (!parentItem) {
-      arr.forEach(y => { 
-        if(y.children != null){
-          this.checkParent(item, y.children)
+      arr.forEach((el: any) => { 
+        if (el.children != null){
+          this.checkParent(item, el.children)
         }
       })
     }
     if(parentItem && parentItem.children != null){
-      parentItem.children.every((res) => res.checked == true) ? parentItem.checked = true : parentItem.checked = false
+      parentItem.children.every((el) => el.checked == true) ? parentItem.checked = true : parentItem.checked = false
     }
   }
 }
-// поиск по parentid - если id равен parentId а все дочерние элементы проходят проверку every то чек у родителя менятеся
 </script>

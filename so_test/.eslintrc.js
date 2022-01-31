@@ -4,8 +4,8 @@ module.exports = {
     node: true,
   },
   extends: [
-    "plugin:vue/recommended",
-    "@vue/typescript/recommended",
+    'plugin:vue/recommended',
+    '@vue/typescript/recommended'
   ],
   parserOptions: {
     ecmaVersion: 2020,
