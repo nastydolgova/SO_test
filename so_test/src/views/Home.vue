@@ -2,7 +2,7 @@
   <v-container>
     <v-row class="text-h3">
       <v-col>
-        Vuetify
+        Vuetify treeview
       </v-col>
       <v-col>
         Самописный
@@ -139,25 +139,22 @@ export default class Home extends Vue {
     if (item.parentId == null){
       currentItem =  this.rules.find( x => x.id == item.id)
       currentItem.checked != currentItem.checked
-      if(item.children != null){
-        item.children.forEach((child: Rule) => {
-          child.checked = currentItem.checked
-        })
-      }
+      this.checkChildren(currentItem)
     } else {
       this.rules.forEach((y) => {      
-        if(y.children != null) this.findElem(item, y.children)})
+        if(y.children != null) 
+          this.findElem(item, y.children)
+      })
     }
   }
 
   findElem(item: Rule, arr: Rule[]): void {
     let currentItem: any;
-    if (item.parentId == arr[0].parentId){
+    if (item && arr[0] && item.parentId == arr[0].parentId){
       currentItem = arr.find( (x: any) => x.id == item.id)
       currentItem.checked != currentItem.checked
-      if (currentItem.children != null){
-        currentItem.children.map( (x: any) => { x.checked = currentItem.checked })
-      }
+      this.checkChildren(currentItem)
+      this.checkParent(item, this.rules)
     } else {
       arr.forEach((y: any) => {
         if (y.children != null) {
@@ -167,7 +164,30 @@ export default class Home extends Vue {
     }
   }
 
+  checkChildren(item: Rule){
+    if(item.children != null){
+      item.children.map( (x: any) => { 
+        x.checked = item.checked
+        if(x.children != null) {
+          this.checkChildren(x)
+        }
+      })
+    }
+  }
+
+  checkParent(item: Rule, arr: Rule[]){
+    let parentItem = arr.find((x: any) => x.id == item.parentId )
+    if (!parentItem) {
+      arr.forEach(y => { 
+        if(y.children != null){
+          this.checkParent(item, y.children)
+        }
+      })
+    }
+    if(parentItem && parentItem.children != null){
+      parentItem.children.every((res) => res.checked == true) ? parentItem.checked = true : parentItem.checked = false
+    }
+  }
 }
 // поиск по parentid - если id равен parentId а все дочерние элементы проходят проверку every то чек у родителя менятеся
-// более глубокие дочерние элементы тоже отмечать
 </script>
